@@ -1,4 +1,4 @@
-const sendMail = require('../../config/setting/nodemailer.config');
+const sendMail = require('../../Config/Setting/nodemailer.config');
 const {
   registrationTemplate,
   passwordChangeTemplate,
