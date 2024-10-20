@@ -19,6 +19,7 @@ const AuthService = {
     if (!user) throw new Error('Invalid credentials');
     const isValidPassword = await comparePassword(password, user.password);
     if (!isValidPassword) throw new Error('Invalid credentials');
+    
     const token = generateToken(user);
     
     return { token, user };

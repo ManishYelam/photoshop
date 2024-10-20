@@ -7,7 +7,7 @@ const RolePermissions = require('./RolePermissions');
 // User-Role Relationship (Many Users to One Role)
 User.belongsTo(Role, { through: 'UserRoles', foreignKey: 'role_id', });
 Role.hasMany(User, { foreignKey: 'role_id' }); // One Role has Many Users
-User.belongsToMany(Role, { through: 'UserRole', foreignKey: 'userId' });
+// User.belongsToMany(Role, { through: 'UserRole', foreignKey: 'userId' });
 
 // User-UserLog Relationship (One User has Many Logs)
 User.hasMany(UserLog, { foreignKey: 'user_id', }); // Use 'user_id' as FK, to match the column definition
