@@ -1,6 +1,6 @@
 const EmailService = require('../Services/email.Service');
 const { JWT_CONFIG } = require('../../Utils/constants');
-const { comparePassword } = require('../Helpers/hashPassword');
+const { comparePassword, hashPassword } = require('../Helpers/hashPassword');
 const { generateToken } = require('../../Utils/jwtSecret');
 const { generateOTP } = require('../../Utils/OTP');
 const { User, Role, Permission } = require('../Models/Association');
@@ -42,11 +42,23 @@ const AuthService = {
     return { token, user, permissions: permissionsArray };
   },
 
-  changePassword: async (userId, newPassword) => {
+  changePassword: async (userId, oldPassword, newPassword) => {
     try {
-      const hashedPassword = await bcrypt.hash(newPassword, 10);  // Use bcrypt to hash the password
-      await User.update({ password: hashedPassword }, { where: { id: userId } });
-      await EmailService.sendPasswordChangeEmail(userId);  // Notify user about the change
+      
+      const user = await User.findByPk(userId);
+      
+      if (!user) {
+        throw new Error('User not found');
+      }
+      const isMatch = await comparePassword(oldPassword, user.password);
+      if (!isMatch) {
+        throw new Error('Old password is incorrect');
+      }
+      const newHashedPassword = await hashPassword(newPassword, 10);
+
+      await User.update({ password: newHashedPassword }, { where: { id: userId } });
+      // await EmailService.sendPasswordChangeEmail(userId);
+
       return { message: 'Password changed successfully' };
     } catch (error) {
       console.error('Error changing password:', error);
@@ -71,14 +83,14 @@ const AuthService = {
   refreshToken: async (token) => {
     try {
       const decoded = jwt.verify(token, JWT_CONFIG.SECRET, { ignoreExpiration: true });
-      
+
       // Generate a new token with the same user info (id and role)
       const newToken = jwt.sign(
-        { id: decoded.id, role: decoded.role }, 
-        JWT_CONFIG.SECRET, 
+        { id: decoded.id, role: decoded.role },
+        JWT_CONFIG.SECRET,
         { expiresIn: '1h' }
       );
-      
+
       return { token: newToken };
     } catch (error) {
       console.error('Error refreshing token:', error);

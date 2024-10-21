@@ -10,7 +10,7 @@ const app = express();
 module.exports = () => {
   app
   .use(express.json())
-  .use(cors())
+  .use(cors()) 
   .use(helmet())
   .use(express.urlencoded({ extended: true }))
   .use(cookieParser())

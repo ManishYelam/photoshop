@@ -4,15 +4,16 @@ const AuthController = {
   login: async (req, res) => {
     try {
       const { token, user } = await AuthService.login(req.body.usernameOrEmail, req.body.password);
-      res.status(200).json({ token, user  });
+      res.status(200).json({ token, user });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
   },
 
   changePassword: async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
     try {
-      await AuthService.changePassword(req.user.id, req.body.newPassword); 
+      await AuthService.changePassword(req.user.id, oldPassword, newPassword);
       res.status(200).json({ message: 'Password changed successfully' });
     } catch (error) {
       res.status(400).json({ error: error.message });
