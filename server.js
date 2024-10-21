@@ -73,7 +73,7 @@ const StartServer = async () => {
 
     const PORT = process.env.MAIN_SERVER_PORT || 5000;
     server.listen(PORT, () => {
-      console.log(`Main server running on port ${PORT} at ${new Date().toLocaleString()}.`);
+      console.log(`✨ Main server running on port ${PORT} at ${new Date().toLocaleString()}.`);
     })
   } catch (error) {
     console.error('Error during server startup:', error.message);
