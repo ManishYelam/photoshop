@@ -10,9 +10,9 @@ const router = express.Router();
 
 router
   .use('/', authRouter)
-  .use('/roles', roleRouter)
-  .use('/permissions', permissionRouter)
+  .use('/roles',authMiddleware, roleRouter)
+  .use('/permissions',authMiddleware, permissionRouter)
   .use('/users',authMiddleware, userRouter)
-  .use('/user_logs', userLogRouter)
+  .use('/user_logs',authMiddleware, userLogRouter)
 
 module.exports = router;
