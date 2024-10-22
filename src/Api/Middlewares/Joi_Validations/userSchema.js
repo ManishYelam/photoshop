@@ -10,8 +10,8 @@ const userSchema = Joi.object({
     phone_number: Joi.string().max(15).optional(),
     address: Joi.string().max(500).optional(),
     status: Joi.string().valid('active', 'inactive', 'banned').default('active'),
-    role_id: Joi.number().integer().optional(),
-    Role: Joi.string().valid('Admin', 'Guest', 'User').optional(),
+    role_id: Joi.number().integer().optional().default(2),
+    Role: Joi.string().valid('Admin', 'Guest', 'User').optional().default('Guest'),
 });
 
 const userUpdateSchema = userSchema.fork(['password'], (schema) => schema.optional());
