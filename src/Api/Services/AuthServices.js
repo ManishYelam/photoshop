@@ -43,6 +43,9 @@ const AuthService = {
   },
 
   async logout(userId, token, ip) {
+    if (!token) {
+      throw new Error('No token provided for logout');
+    }
     // Optionally, blacklist the JWT if using a blacklist mechanism
     // await blacklistToken(token);
 
@@ -83,15 +86,35 @@ const AuthService = {
         throw new Error('Old password is incorrect');
       }
       const newHashedPassword = await hashPassword(newPassword, 10);
-      
+
       await User.update({ password: newHashedPassword }, { where: { id: userId } });
-      
+
       await EmailService.sendPasswordChangeEmail(userId);
 
       return { message: 'Password changed successfully' };
     } catch (error) {
       console.error('Error changing password:', error);
       throw new Error('Password change failed');
+    }
+  },
+
+  confirmEmail: async (req, res) => {
+    const { userId } = req.query;
+
+    try {
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return res.status(404).send('User not found');
+      }
+      // Log confirmation or update a field as needed
+      console.log(`Email confirmed by user ID: ${userId}`);
+      // Optionally, update the user status
+      // user.emailConfirmed = true; // Assuming you have such a field
+      // await user.save();
+      res.send('Thank you for confirming! Your password change has been noted.');
+    } catch (error) {
+      console.error(`Error confirming email: ${error.message}`);
+      res.status(500).send('Internal server error');
     }
   },
 
@@ -106,8 +129,8 @@ const AuthService = {
       console.error('Error resetting password:', error);
       throw new Error('Password reset failed');
     }
-  },
 
+  },
   // Refresh JWT token
   refreshToken: async (token) => {
     try {
