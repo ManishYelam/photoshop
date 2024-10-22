@@ -26,7 +26,7 @@ module.exports = () => {
       },
     })
   )
-  .use(securityConfig);
+  .use(securityConfig)
   
   return app;
 };

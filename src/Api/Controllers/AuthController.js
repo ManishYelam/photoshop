@@ -10,6 +10,31 @@ const AuthController = {
     }
   },
 
+  logout: async (req, res) => {
+    const userId = req.user.id;
+    const token = req.token;
+    const ip = req.headers['x-forwarded-for'] || req.ip;
+    try {
+      const response = await AuthService.logout(userId, token, ip);
+      req.token = null;
+      console.log(response);
+      return res.status(200).json(response);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  },
+
+  forgetPassword: async (req, res) => {
+    const { email } = req.body;
+    try {
+      const result = await AuthService.forgetPassword(email);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+      res.status(404).json({ error: error.message });
+    }
+  },
+
   changePassword: async (req, res) => {
     const { oldPassword, newPassword } = req.body;
     try {

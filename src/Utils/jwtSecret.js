@@ -35,7 +35,6 @@ const verifyToken = (token, secret = JWT_CONFIG.SECRET) => {
     }
 };
 
-
 const decodeToken = (token) => {
     try {
         const decoded = jwt.decode(token);
