@@ -10,10 +10,11 @@ const userSchema = Joi.object({
     phone_number: Joi.string().max(15).optional(),
     address: Joi.string().max(500).optional(),
     status: Joi.string().valid('active', 'inactive', 'banned').default('active'),
+    role_id: Joi.number().integer().optional(),
+    Role: Joi.string().valid('Admin', 'Guest', 'User').optional(),
 });
 
 const userUpdateSchema = userSchema.fork(['password'], (schema) => schema.optional());
-
 
 const roleSchema = Joi.object({
     name: Joi.string().max(100).required(),
@@ -25,7 +26,6 @@ const roleSchema = Joi.object({
 const permissionSchema = Joi.object({
     name: Joi.string().max(100).required(),
 });
-
 
 const userLogSchema = Joi.object({
     userId: Joi.number().integer().positive().optional(), 

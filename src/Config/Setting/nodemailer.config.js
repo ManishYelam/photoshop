@@ -9,15 +9,22 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sendMail = async (to, subject, templateName, templateData, attachments = []) => {
+const sendMail = async (to, subject, templateName, templateData = {}, attachments = []) => {
   try {
-    const html = await emailTemplates[templateName](...templateData);
+    // Retrieve the template based on template name
+    const template = emailTemplates[templateName];
+    if (!template) {
+      throw new Error(`Template ${templateName} not found`);
+    }
 
+    // Pass templateData to the template function
+    const html = await template(templateData);
+    
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to,
       subject,
-      html, 
+      html: html, 
       attachments,
     };
 

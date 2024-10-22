@@ -17,19 +17,28 @@ module.exports = {
     const subject = 'Welcome to [Your App Name] - Verify Your Email';
     const html = registrationTemplate(
       user.name,
-      'http://example.com/verify?token=abc123'
+      'http://13.127.13.10:5000/verify?token=abc123'
     );
     await sendMail(user.email, subject, html);
   },
-  // Send password change email
-  sendPasswordChangeEmail: async (userId) => {
-    const user = await User.findByPk(userId);
-    if (!user) throw new Error('User not found');
 
-    const subject = 'Password Change Confirmation';
-    const html = passwordChangeTemplate(user.name);
-    await sendMail(user.email, subject, html);
+  sendPasswordChangeEmail: async (userId) => {
+    try {
+      const user = await User.findByPk(userId);
+      if (!user) throw new Error('User not found');
+  
+      const userEmail = user.email;
+      const subject = 'Your Password has been Changed';
+      const templateName = 'passwordChangeTemplate';
+      const templateData = { userName: user.name };
+
+      await sendMail(userEmail, subject, templateName, templateData);
+    } catch (error) {
+      console.error(`Failed to send password change email to user ID ${userId}: ${error.message}`);
+      throw error; 
+    }
   },
+
   // Send performance tracking email
   sendPerformanceTrackingEmail: async (userId, data) => {
     const user = await User.findByPk(userId);
