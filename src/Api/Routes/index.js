@@ -12,7 +12,7 @@ router
   .use('/', authRouter)
   .use('/roles',authMiddleware, roleRouter)
   .use('/permissions',authMiddleware, permissionRouter)
-  .use('/users',authMiddleware, userRouter)
+  .use('/users', userRouter)
   .use('/user_logs',authMiddleware, userLogRouter)
 
 module.exports = router;
