@@ -115,20 +115,6 @@ const AuthService = {
     }
   },
 
-  // Reset Password and send confirmation email
-  resetPassword: async (userId, newPassword) => {
-    try {
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-      await User.update({ password: hashedPassword }, { where: { id: userId } });
-      await EmailService.sendPasswordChangeEmail(userId);  // Notify user about password reset
-      return { message: 'Password reset successfully' };
-    } catch (error) {
-      console.error('Error resetting password:', error);
-      throw new Error('Password reset failed');
-    }
-
-  },
-  // Refresh JWT token
   refreshToken: async (token) => {
     try {
       const decoded = jwt.verify(token, JWT_CONFIG.SECRET, { ignoreExpiration: true });
