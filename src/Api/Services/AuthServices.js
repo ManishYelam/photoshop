@@ -86,11 +86,8 @@ const AuthService = {
         throw new Error('Old password is incorrect');
       }
       const newHashedPassword = await hashPassword(newPassword, 10);
-
       await User.update({ password: newHashedPassword }, { where: { id: userId } });
-
       await EmailService.sendPasswordChangeEmail(userId);
-
       return { message: 'Password changed successfully' };
     } catch (error) {
       console.error('Error changing password:', error);
