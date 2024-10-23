@@ -49,9 +49,10 @@ const AuthService = {
     // Optionally, blacklist the JWT if using a blacklist mechanism
     // await blacklistToken(token);
 
+    // Log the logout event in the UserLog table
     await UserLog.create({
       userId,
-      sourceIp: ip,
+      sourceIp: ip, // Get the IP address of the user
       logoffBy: 'USER',
       logoffAt: new Date(),
       jwtToken: token,
@@ -66,11 +67,11 @@ const AuthService = {
       throw new Error('User not found');
     }
 
-    const otp = generateOTP(); 
-    user.otp = otp;
+    const otp = generateOTP(); // Generate OTP
+    user.otp = otp; // Save OTP to user record (make sure to have this field in your User model)
     await user.save();
 
-    await EmailService.sendForgetPasswordEmail(user.id, otp);
+    await EmailService.sendForgetPasswordEmail(user.id, otp); // Send email with OTP
     return { message: 'OTP sent to your email' };
   },
 
@@ -87,6 +88,8 @@ const AuthService = {
       const newHashedPassword = await hashPassword(newPassword, 10);
 
       await User.update({ password: newHashedPassword }, { where: { id: userId } });
+
+      await EmailService.sendPasswordChangeEmail(userId);
 
       return { message: 'Password changed successfully' };
     } catch (error) {
