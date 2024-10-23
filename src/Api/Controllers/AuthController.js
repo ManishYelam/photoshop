@@ -1,4 +1,5 @@
 const AuthService = require('../Services/AuthServices');
+const EmailService = require('../Services/email.Service');
 
 const AuthController = {
   login: async (req, res) => {
@@ -39,6 +40,7 @@ const AuthController = {
     const { oldPassword, newPassword } = req.body;
     try {
       await AuthService.changePassword(req.user.id, oldPassword, newPassword);
+      await EmailService.sendPasswordChangeEmail(req.user.name);
       res.status(200).json({ message: 'Password changed successfully' });
     } catch (error) {
       res.status(400).json({ error: error.message });
