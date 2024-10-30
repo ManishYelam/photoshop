@@ -56,7 +56,7 @@ const DefineRoutes = () => {
     }
   });
 
-  app.use('/Api', routes);
+  app.use('/api', routes);
 };
 
 const StartServer = async () => {

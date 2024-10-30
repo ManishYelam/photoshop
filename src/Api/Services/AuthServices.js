@@ -7,6 +7,27 @@ const { Op } = require('sequelize');
 const EmailService = require('../Services/email.Service');
 
 const AuthService = {
+  verifyUserOTP: async (userId, inputOtp) => {
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      const { otp, otpExpiryTime } = user;
+      const verification = verifyOTPTimestamped(inputOtp, otp, otpExpiryTime);
+      if (verification.isValid) {
+        // OTP is valid, mark user as verified
+        user.isVerified = true;  // Optional: a field in the User model
+        user.otp = null;         // Clear the OTP after verification
+        user.otpExpiryTime = null;
+        await user.save();
+      }
+      return verification;
+    } catch (error) {
+      throw new Error('Error verifying OTP: ' + error.message);
+    }
+  },
+
   login: async (usernameOrEmail, password, req, res) => {
     const user = await User.findOne({
       where: {
@@ -42,23 +63,42 @@ const AuthService = {
     return { token, user, permissions: permissionsArray };
   },
 
-  async logout(userId, token, ip) {
+  logout: async (userId, token, ip) => {
     if (!token) {
       throw new Error('No token provided for logout');
     }
     // Optionally, blacklist the JWT if using a blacklist mechanism
     // await blacklistToken(token);
-
     // Log the logout event in the UserLog table
     await UserLog.create({
       userId,
-      sourceIp: ip, // Get the IP address of the user
+      sourceIp: ip,
       logoffBy: 'USER',
       logoffAt: new Date(),
       jwtToken: token,
     });
-
     return { message: 'Successfully logged out' };
+  },
+
+  changePassword: async (userId, oldPassword, newPassword) => {
+    try {
+      const user = await User.findByPk(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      const isMatch = await comparePassword(oldPassword, user.password);
+      if (!isMatch) {
+        throw new Error('Old password is incorrect');
+      }
+      const newHashedPassword = await hashPassword(newPassword, 10);
+      await User.update({ password: newHashedPassword }, { where: { id: userId } });
+
+      await EmailService.sendPasswordChangeEmail(userId, user.email, user.username);
+      return { message: 'Password changed successfully' };
+    } catch (error) {
+      console.error('Error changing password:', error);
+      throw new Error('Password change failed');
+    }
   },
 
   forgetPassword: async (email) => {
@@ -75,24 +115,10 @@ const AuthService = {
     return { message: 'OTP sent to your email' };
   },
 
-  changePassword: async (userId, oldPassword, newPassword) => {
-    try {
-      const user = await User.findByPk(userId);
-      if (!user) {
-        throw new Error('User not found');
-      }
-      const isMatch = await comparePassword(oldPassword, user.password);
-      if (!isMatch) {
-        throw new Error('Old password is incorrect');
-      }
-      const newHashedPassword = await hashPassword(newPassword, 10);
-      await User.update({ password: newHashedPassword }, { where: { id: userId } });
-      await EmailService.sendPasswordChangeEmail(userId);
-      return { message: 'Password changed successfully' };
-    } catch (error) {
-      console.error('Error changing password:', error);
-      throw new Error('Password change failed');
-    }
+  ResetPassword: async (email) => {
+    const { token } = req.query;
+    const { oldPassword, newPassword } = req.body;
+    EmailService.sendResetPasswordEmail
   },
 
   confirmEmail: async (req, res) => {

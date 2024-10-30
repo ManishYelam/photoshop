@@ -18,7 +18,7 @@ const uploadMiddleware = (req, res, next) => {
         storage,
         limits: { fileSize: 10 * 1024 * 1024 }, // General file size limit for all file types
         fileFilter: (req, file, cb) => {
-            if (validateFile(file, req.params.category)) { // Pass category to validateFile
+            if (validateFile(file, )) { // Pass category to validateFile
                 cb(null, true); // File is valid
             } else {
                 cb(new Error(`Invalid file type or size. Please upload a valid document, image, video, or text file.`));
